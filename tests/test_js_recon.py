@@ -49,6 +49,7 @@ def _expand_fixture_markers(body):
         (b"glpat-@@FIXTURE@@",   b"glpat-" + b"E" * 20),
         (b"ghp_@@FIXTURE@@",     b"ghp_" + b"E" * 36),
         (b"ya29.@@FIXTURE@@",    b"ya29." + b"E" * 32),
+        (b"ASIA@@FIXTURE@@",     b"ASIA" + b"IOSFODNN7EXAMPLE"),
     ):
         body = body.replace(marker, value)
     assert b"@@FIXTURE@@" not in body, "unexpanded fixture marker"

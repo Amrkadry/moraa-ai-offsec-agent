@@ -6,7 +6,7 @@
    full-shape test values at load time by tests/test_js_recon.py. */
 (function fixtureBundle() {
   var awsKeyId = "AKIAIOSFODNN7EXAMPLE";
-  var awsTempId = "ASIAIOSFODNN7EXAMPLE";
+  var awsTempId = "ASIA@@FIXTURE@@";
   var googleKey = "AIzaSyA-0000-EXAMPLE-FIXTURE-000000000000000";
   var googleOAuth = "ya29.@@FIXTURE@@";
   var stripeSecret = "sk_live_@@FIXTURE@@";
