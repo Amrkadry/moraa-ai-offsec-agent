@@ -1,0 +1,42 @@
+id: moraa-spring-actuator-exposure
+
+info:
+  name: Spring Boot Actuator env/heapdump Exposure
+  author: moraa-ai-offsec-agent
+  severity: high
+  description: |
+    Two independent checks on the dangerous Spring Boot actuator endpoints: /actuator/env
+    (matches the propertySources JSON envelope - leaks property values incl. credentials) and
+    /actuator/heapdump (matches the download response - the heap contains live secrets,
+    session tokens and DB credentials: pull it and run strings).
+    Both matchers are content/header-based, so a wildcard-200 HTML catch-all or a secured
+    endpoint's 401 JSON does not match. framework-misconfig.md notes auth often exists only at
+    the gateway - probe the pod-internal path variants too (paths without the /actuator
+    prefix, e.g. /env, /heapdump) manually.
+  reference:
+    - https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html
+  metadata:
+    moraa-doc: nuclei-templates.md
+    moraa-gate: env/heapdump content in hand; secrets extracted from the dump = the report
+  tags: exposure,spring,actuator,moraa
+
+http:
+  - raw:
+      - |
+        GET /actuator/env HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: dsl
+        dsl:
+          - "status_code == 200 && contains(body, '\"propertySources\"')"
+
+  - raw:
+      - |
+        GET /actuator/heapdump HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: dsl
+        dsl:
+          - "status_code == 200 && (contains(to_lower(header), 'heapdump') || contains(to_lower(header), 'application/octet-stream'))"

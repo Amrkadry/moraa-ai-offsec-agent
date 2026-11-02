@@ -1,0 +1,15 @@
+{
+  "version": 3,
+  "file": "small_bundle.js",
+  "sources": [
+    "webpack://fixture/src/a.ts",
+    "webpack://fixture/src/b.ts",
+    "webpack://fixture/src/c.ts"
+  ],
+  "sourcesContent": [
+    "// synthetic fixture source a",
+    "// synthetic fixture source b",
+    "// synthetic fixture source c"
+  ],
+  "names": []
+}

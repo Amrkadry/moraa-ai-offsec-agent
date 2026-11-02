@@ -1,0 +1,39 @@
+id: moraa-edge-api-block-gap
+
+info:
+  name: Path-Scoped Edge Block Missing /api/* (root blocked, API path open)
+  author: moraa-ai-offsec-agent
+  severity: medium
+  description: |
+    Detects the estate's recurring edge/waf misconfiguration shape ("seven/eight pattern"):
+    the edge blocks / with a 4xx page, but an /api/ path slips through and returns 200 JSON.
+    req-condition pairs the BASELINE (/, must be blocked) with the API probes (/api/,
+    /api/v1/, must return 200 with a JSON content-type) - an all-open host (baseline 200),
+    an all-blocked host, or an edge catch-all that answers every path with 200 HTML does NOT
+    match, which is exactly the wildcard-200 trap this pairing exists to kill.
+    A hit means the edge's block scope forgot the API prefix: re-test the BLOCKED CLASS
+    manually per bypass-4xx.md (canary controls), then chase what the now-reachable API
+    leaks unauthenticated.
+  reference:
+    - https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+  metadata:
+    moraa-doc: nuclei-templates.md
+    moraa-gate: reachable API surface + what it leaks unauth defines severity
+  tags: bypass,exposure,moraa,edge
+
+http:
+  - raw:
+      - |
+        GET / HTTP/1.1
+        Host: {{Hostname}}
+      - |
+        GET /api/ HTTP/1.1
+        Host: {{Hostname}}
+      - |
+        GET /api/v1/ HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: dsl
+        dsl:
+          - "status_code_1 >= 400 && ((status_code_2 == 200 && contains(to_lower(content_type_2), 'json')) || (status_code_3 == 200 && contains(to_lower(content_type_3), 'json')))"

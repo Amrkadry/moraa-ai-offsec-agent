@@ -1,0 +1,4 @@
+[
+  {"id": 1, "name": "Fixture Admin", "slug": "admin", "avatar_urls": {}, "meta": []},
+  {"id": 2, "name": "Fixture Editor", "slug": "editor", "avatar_urls": {}, "meta": []}
+]

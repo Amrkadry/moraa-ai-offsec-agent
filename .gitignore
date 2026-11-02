@@ -1,0 +1,52 @@
+# ---------------------------------------------------------------------------
+# Live engagement data and secrets - NEVER publish.
+# _TEMPLATE is the only engagement content that belongs in git.
+# ---------------------------------------------------------------------------
+engagements/*
+!engagements/_TEMPLATE/
+!engagements/_TEMPLATE/**
+
+# Belt and braces: these must never land in a commit, wherever they sit.
+**/auth.json
+**/*cookie*
+**/*.session
+**/*.jwt
+**/*token*.txt
+**/*secret*.txt
+**/creds*.json
+**/loot/
+**/findings/
+**/report/
+**/recon/
+**/pivot/
+**/graph/
+
+# Third-party encyclopedia packs (optional, populate locally)
+knowledge/
+
+# Stale dated backups - git history is the backup
+*.bak
+*.bak-*
+bak/
+
+# Internal build plans, audits and changelogs (operator-local, not published)
+docs/
+AUDIT-*.md
+BRIEF-*.txt
+lane*/
+
+# Noise
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+.venv/
+venv/
+.idea/
+.vscode/
+
+# Fixtures that tests generate at run time
+tests/fixtures/dns/*
+!tests/fixtures/dns/.gitkeep

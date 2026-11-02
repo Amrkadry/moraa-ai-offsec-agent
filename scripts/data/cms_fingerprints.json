@@ -1,0 +1,156 @@
+[
+  {
+    "cms": "WordPress",
+    "confidence_basis": "well-documented",
+    "doc": "cms-wordpress-joomla.md",
+    "confidence_signals": [
+      {"type": "meta_generator", "detail": "generator meta tag", "match": "WordPress", "weight": 0.9},
+      {"type": "body_regex", "detail": "wp-content asset URLs", "match": "wp-content/(themes|plugins|uploads)/", "weight": 0.6},
+      {"type": "body_regex", "detail": "wp-includes asset URLs", "match": "wp-includes/", "weight": 0.6},
+      {"type": "body_regex", "detail": "wp-json REST API reference", "match": "wp-json", "weight": 0.35},
+      {"type": "path_exists", "detail": "core emoji script", "match": "/wp-includes/js/wp-emoji-release.min.js", "weight": 0.7},
+      {"type": "path_exists", "detail": "login page", "match": "/wp-login.php", "weight": 0.5},
+      {"type": "path_exists", "detail": "stock readme (often stripped)", "match": "/readme.html", "weight": 0.4}
+    ],
+    "version_signals": [
+      {"source": "meta_generator", "regex": "WordPress\\s+([0-9]+(?:\\.[0-9]+)+)", "note": "generator meta content, e.g. 'WordPress 6.4.2'"},
+      {"source": "path", "path": "/readme.html", "regex": "Version\\s+\\(?([0-9]+(?:\\.[0-9]+)+)", "note": "stock readme.html; often stripped on hardened sites"}
+    ],
+    "follow_up": [
+      {"path": "/wp-json/wp/v2/users", "method": "GET", "purpose": "unauthenticated user enumeration check (ids/slugs -> usernames)",
+       "expose_when": {"status": [200], "body_regex": "\"(slug|name)\""},
+       "exposure": "unauthenticated REST user enumeration at /wp-json/wp/v2/users — usernames obtainable without auth (cms-wordpress-joomla.md)"},
+      {"path": "/wp-content/debug.log", "method": "GET", "purpose": "WP_DEBUG log exposure check",
+       "expose_when": {"status": [200], "body_regex": "(?i)php (notice|warning|error|fatal)"},
+       "exposure": "WordPress debug.log is publicly readable — may leak paths, queries, credentials"},
+      {"path": "/xmlrpc.php", "method": "GET", "purpose": "XML-RPC enabled check (pingback SSRF / system.multicall brute surface)",
+       "expose_when": {"status": [405], "body_regex": "(?i)xml-rpc"},
+       "exposure": "XML-RPC endpoint enabled — pingback.ping SSRF and multicall brute-force amplification surface (cms-wordpress-joomla.md)"}
+    ]
+  },
+  {
+    "cms": "Joomla",
+    "confidence_basis": "well-documented",
+    "doc": "cms-wordpress-joomla.md",
+    "confidence_signals": [
+      {"type": "meta_generator", "detail": "generator meta tag", "match": "Joomla!", "weight": 0.85},
+      {"type": "body_regex", "detail": "Joomla! footer credit", "match": "(?i)powered by joomla", "weight": 0.5},
+      {"type": "body_regex", "detail": "core JS UI library", "match": "/media/jui/js/", "weight": 0.6},
+      {"type": "body_regex", "detail": "component URLs", "match": "(components/com_|option=com_)", "weight": 0.6},
+      {"type": "path_exists", "detail": "core manifest", "match": "/administrator/manifests/files/joomla.xml", "weight": 0.8},
+      {"type": "path_exists", "detail": "core language manifest", "match": "/language/en-GB/en-GB.xml", "weight": 0.7},
+      {"type": "path_exists", "detail": "admin login", "match": "/administrator/", "weight": 0.35}
+    ],
+    "version_signals": [
+      {"source": "path", "path": "/administrator/manifests/files/joomla.xml", "regex": "<version>\\[?([0-9][^<\\]]*)", "note": "core files manifest <version>"},
+      {"source": "path", "path": "/language/en-GB/en-GB.xml", "regex": "<version>([^<]+)</version>", "note": "language manifest fallback"}
+    ],
+    "follow_up": [
+      {"path": "/administrator/manifests/files/joomla.xml", "method": "GET", "purpose": "exact version disclosure",
+       "expose_when": {"status": [200], "body_regex": "<version>"},
+       "exposure": "exact Joomla version disclosed at /administrator/manifests/files/joomla.xml — cross-reference against the CVE database manually"},
+      {"path": "/api/index.php/v1/config/application?public=true", "method": "GET", "purpose": "CVE-2023-23752 unauth API info-leak check (Joomla < 4.2.8 leaks DB creds)",
+       "expose_when": {"status": [200], "body_regex": "(?i)\"(password|dbtype|host)\""},
+       "exposure": "unauthenticated application-config API returned secrets — possible CVE-2023-23752 (<4.2.8) DB-credential leak — verify manually before reporting"},
+      {"path": "/administrator/", "method": "GET", "purpose": "admin login surface check (exposed by design; note reachability)"}
+    ]
+  },
+  {
+    "cms": "Drupal",
+    "confidence_basis": "well-documented",
+    "doc": "cms-wordpress-joomla.md",
+    "confidence_signals": [
+      {"type": "header", "detail": "X-Generator header (D8+)", "match": "Drupal", "weight": 0.85},
+      {"type": "meta_generator", "detail": "generator meta tag", "match": "Drupal", "weight": 0.85},
+      {"type": "body_regex", "detail": "D7 settings JS object", "match": "Drupal\\.settings", "weight": 0.6},
+      {"type": "body_regex", "detail": "D8+ data attribute", "match": "data-drupal-selector", "weight": 0.6},
+      {"type": "body_regex", "detail": "public files dir", "match": "/sites/default/files", "weight": 0.5},
+      {"type": "path_exists", "detail": "D8+ core JS", "match": "/core/misc/drupal.js", "weight": 0.7},
+      {"type": "path_exists", "detail": "D7 core JS", "match": "/misc/drupal.js", "weight": 0.6},
+      {"type": "path_exists", "detail": "D7-era changelog (often stripped)", "match": "/CHANGELOG.txt", "weight": 0.4}
+    ],
+    "version_signals": [
+      {"source": "meta_generator", "regex": "Drupal\\s+([0-9]+(?:\\.[0-9]+)*)", "note": "generator meta, e.g. 'Drupal 10 (https://www.drupal.org)'"},
+      {"source": "header", "header": "X-Generator", "regex": "Drupal\\s+([0-9]+(?:\\.[0-9]+)*)", "note": "X-Generator header (D8+)"},
+      {"source": "path", "path": "/core/CHANGELOG.txt", "regex": "Drupal\\s+([0-9]+\\.[0-9]+(?:\\.[0-9]+)?)", "note": "D8+; default .htaccess returns 403 — only exposed on misconfigured deploys"},
+      {"source": "path", "path": "/CHANGELOG.txt", "regex": "Drupal\\s+([0-9]+\\.[0-9]+(?:\\.[0-9]+)?)", "note": "D7-era changelog"}
+    ],
+    "follow_up": [
+      {"path": "/CHANGELOG.txt", "method": "GET", "purpose": "version disclosure check (D7-era; sane D8+ returns 403)",
+       "expose_when": {"status": [200], "body_regex": "(?i)drupal"},
+       "exposure": "exact Drupal version disclosed via /CHANGELOG.txt — cross-reference against the CVE database (Drupalgeddon-class RCEs on old cores)"},
+      {"path": "/core/CHANGELOG.txt", "method": "GET", "purpose": "version disclosure check (D8+; default .htaccess 403s it — a 200 means exposed)",
+       "expose_when": {"status": [200], "body_regex": "(?i)drupal"},
+       "exposure": "exact Drupal version disclosed via /core/CHANGELOG.txt — cross-reference against the CVE database manually"},
+      {"path": "/user/register", "method": "GET", "purpose": "open-registration check (info only — note status, not an exposure on its own)"}
+    ]
+  },
+  {
+    "cms": "Moodle",
+    "confidence_basis": "well-documented",
+    "doc": "cms-moodle.md",
+    "confidence_signals": [
+      {"type": "header", "detail": "Set-Cookie header", "match": "MoodleSession", "weight": 0.7},
+      {"type": "body_regex", "detail": "core JS config object", "match": "M\\.cfg\\s*=", "weight": 0.7},
+      {"type": "body_regex", "detail": "YUI loader config", "match": "YUI_config", "weight": 0.5},
+      {"type": "body_regex", "detail": "bare 'moodle' mention (weak — corroborate)", "match": "(?i)moodle", "weight": 0.3},
+      {"type": "path_exists", "detail": "TinyMCE (>= 4.1)", "match": "/lib/editor/tiny/js/tinymce/tinymce.min.js", "weight": 0.7},
+      {"type": "path_exists", "detail": "MFA tool (>= 4.3)", "match": "/admin/tool/mfa/index.php", "weight": 0.6},
+      {"type": "path_exists", "detail": "login page", "match": "/login/index.php", "weight": 0.35}
+    ],
+    "version_signals": [
+      {"source": "path", "path": "/version.php", "regex": "\\$release\\s*=\\s*'([^']+)'", "note": "only disclosed on misconfigured deploys — sane installs serve 200 with 0 bytes (cms-moodle.md §1)"},
+      {"source": "body", "regex": "docs\\.moodle\\.org/(\\d{3})/", "note": "branch from docs links, e.g. 403 = 4.3 (coarse)"}
+    ],
+    "follow_up": [
+      {"path": "/version.php", "method": "GET", "purpose": "version-disclosure oracle: 200 + non-empty body = exact version; 200 + 0 bytes = sane deploy",
+       "expose_when": {"status": [200], "body_regex": "\\$release"},
+       "exposure": "exact Moodle version disclosed via /version.php — sane deploys serve 0 bytes (cms-moodle.md §1); cross-reference against moodle.org/security MSAs"},
+      {"path": "/lib/ajax/service-nologin.php?info=tool_mobile_get_public_config", "method": "POST",
+       "body": "[{\"index\":0,\"methodname\":\"tool_mobile_get_public_config\",\"args\":{}}]",
+       "purpose": "unauth public-config dump — registerauth/guestlogin/enablewebservices/identityproviders (cms-moodle.md §0; by-design public, facts recorded as evidence)"}
+    ]
+  },
+  {
+    "cms": "Ghost",
+    "confidence_basis": "well-documented",
+    "doc": "web-hunt.md",
+    "confidence_signals": [
+      {"type": "header", "detail": "X-Powered-By header", "match": "Ghost", "weight": 0.8},
+      {"type": "meta_generator", "detail": "generator meta tag", "match": "Ghost", "weight": 0.85},
+      {"type": "body_regex", "detail": "image-resize URLs", "match": "/content/images/size/", "weight": 0.5},
+      {"type": "body_regex", "detail": "Ghost SDK/scripts", "match": "ghost(-sdk|portal)?(\\.min)?\\.js", "weight": 0.4},
+      {"type": "path_exists", "detail": "admin panel", "match": "/ghost/", "weight": 0.4}
+    ],
+    "version_signals": [
+      {"source": "meta_generator", "regex": "Ghost\\s+([0-9]+(?:\\.[0-9]+)*)", "note": "generator meta content, e.g. 'Ghost 5.87'"},
+      {"source": "header", "header": "X-Powered-By", "regex": "Ghost\\s+([0-9]+(?:\\.[0-9]+)*)", "note": "older Ghost builds put the version in X-Powered-By"}
+    ],
+    "follow_up": [
+      {"path": "/ghost/", "method": "GET", "purpose": "admin panel reachability (by-design; note for credential-guessing discipline only)"}
+    ]
+  },
+  {
+    "cms": "Magento",
+    "confidence_basis": "well-documented",
+    "doc": "web-hunt.md",
+    "confidence_signals": [
+      {"type": "body_regex", "detail": "M2 versioned static URLs", "match": "/static/version[0-9]+/", "weight": 0.7},
+      {"type": "body_regex", "detail": "M2 frontend static paths", "match": "/static/frontend/", "weight": 0.6},
+      {"type": "body_regex", "detail": "M1 skin paths", "match": "/skin/frontend/", "weight": 0.6},
+      {"type": "body_regex", "detail": "M1 Mage JS object", "match": "\\bMage\\.(Cookies|url)", "weight": 0.5},
+      {"type": "body_regex", "detail": "bare 'Magento' mention (weak — corroborate)", "match": "(?i)magento", "weight": 0.3},
+      {"type": "path_exists", "detail": "version endpoint", "match": "/magento_version", "weight": 0.8},
+      {"type": "path_exists", "detail": "M1 web downloader", "match": "/downloader/", "weight": 0.4}
+    ],
+    "version_signals": [
+      {"source": "path", "path": "/magento_version", "regex": "Magento[/: ]\\s*v?([0-9]+(?:\\.[0-9]+)+)", "note": "endpoint returns plain text like 'Magento/2.4.3'"},
+      {"source": "body", "regex": "/static/version([0-9]{6,})/", "note": "deploy build id — coarse era only, not the exact version"}
+    ],
+    "follow_up": [
+      {"path": "/magento_version", "method": "GET", "purpose": "exact version disclosure endpoint",
+       "expose_when": {"status": [200], "body_regex": "(?i)magento"},
+       "exposure": "exact Magento version disclosed via /magento_version — cross-reference against the CVE database manually"}
+    ]
+  }
+]

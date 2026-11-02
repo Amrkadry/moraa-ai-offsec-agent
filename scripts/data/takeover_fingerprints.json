@@ -1,0 +1,402 @@
+[
+  {
+    "service": "GitHub Pages",
+    "cname_patterns": ["\\.github\\.io$"],
+    "http_fingerprint": ["a github pages site here"],
+    "nxdomain_expected": false,
+    "documentation": "Custom domains are claimed per-repo via a CNAME file; an unclaimed github.io target serves the canonical 'There isn't a GitHub Pages site here' 404, and anyone can create the repo that claims it.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Heroku",
+    "cname_patterns": ["\\.herokuapp\\.com$"],
+    "http_fingerprint": ["no such app", "nothing here, yet"],
+    "nxdomain_expected": false,
+    "documentation": "herokuapp.com wildcards; a deleted/released app's name can be registered by anyone and the router serves 'No such app' until then.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Heroku (SSL/private DNS target)",
+    "cname_patterns": ["\\.herokudns\\.com$"],
+    "http_fingerprint": [],
+    "nxdomain_expected": true,
+    "documentation": "herokudns.com targets have no wildcard: when the app is gone the CNAME target itself is NXDOMAIN. Re-registering an app with the matching name claims the domain. No HTTP body fingerprint exists (the name stops resolving) — verify by attempting to claim.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "AWS S3",
+    "cname_patterns": ["\\.s3[a-z0-9.-]*\\.amazonaws\\.com$"],
+    "http_fingerprint": ["nosuchbucket"],
+    "nxdomain_expected": false,
+    "documentation": "S3 resolves bucket names via the Host header; if the bucket named by the CNAME doesn't exist, anyone can create a bucket with that name in any region and serve content on the domain. Covers .s3.amazonaws.com, .s3-website-<region>..., .s3.<region>..., .s3.dualstack....",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Azure App Service",
+    "cname_patterns": ["\\.azurewebsites\\.net$"],
+    "http_fingerprint": ["404 web site not found"],
+    "nxdomain_expected": false,
+    "documentation": "azurewebsites.net wildcards; deleting an app frees the name and any new app with the same name re-claims the custom domain (page shows '404 Web Site not found.').",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Azure CDN",
+    "cname_patterns": ["\\.azureedge\\.net$"],
+    "http_fingerprint": [],
+    "nxdomain_expected": false,
+    "documentation": "azureedge.net endpoints are historically claimable by re-registering the endpoint name. No stable public body fingerprint on record — confirm by attempting to claim the endpoint name.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Azure Cloud Services",
+    "cname_patterns": ["\\.cloudapp\\.azure\\.com$", "\\.cloudapp\\.net$"],
+    "http_fingerprint": [],
+    "nxdomain_expected": true,
+    "documentation": "cloudapp.azure.com / cloudapp.net have no wildcard: an unclaimed deployment means the CNAME target itself is NXDOMAIN; re-deploying a cloud service with the same name claims the DNS name.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Google Cloud Storage",
+    "cname_patterns": ["\\.storage\\.googleapis\\.com$", "\\.storage\\.cloud\\.google\\.com$"],
+    "http_fingerprint": ["nosuchbucket"],
+    "nxdomain_expected": false,
+    "documentation": "Like S3: bucket name comes from the Host header, so a dangling CNAME to a non-existent bucket can be claimed by creating a GCS bucket with that name (body returns NoSuchBucket).",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Shopify",
+    "cname_patterns": ["\\.myshopify\\.com$"],
+    "http_fingerprint": ["sorry, this shop is currently unavailable"],
+    "nxdomain_expected": false,
+    "documentation": "Dangling myshopify.com custom-domain CNAMEs serve 'Sorry, this shop is currently unavailable'; the shop name can be re-registered (Shopify support arbitration handles contested claims).",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Fastly",
+    "cname_patterns": ["\\.fastly\\.net$"],
+    "http_fingerprint": ["fastly error: unknown domain"],
+    "nxdomain_expected": false,
+    "documentation": "Fastly serves 'Fastly error: unknown domain' when the domain isn't mapped to any service; adding the domain to your own Fastly service claims it (edge case: some accounts need Fastly approval).",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Netlify",
+    "cname_patterns": ["\\.netlify\\.app$", "\\.netlifyglobalcdn\\.com$"],
+    "http_fingerprint": ["not found - request id"],
+    "nxdomain_expected": false,
+    "documentation": "Netlify serves a 'Not Found - Request ID' page for domains not attached to a site; the custom domain can be registered onto a new Netlify site (Netlify verifies via DNS record, which the attacker does not control — historically claimable).",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Vercel",
+    "cname_patterns": ["\\.vercel\\.app$", "\\.vercel-dns\\.com$"],
+    "http_fingerprint": ["deployment_not_found", "404: not_found"],
+    "nxdomain_expected": false,
+    "documentation": "Unclaimed vercel.app / vercel-dns targets return DEPLOYMENT_NOT_FOUND / 404: NOT_FOUND. Edge case: Vercel requires the domain's DNS to point at your account before accepting it — verify claimability before reporting.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Bitbucket Cloud",
+    "cname_patterns": ["\\.bitbucket\\.io$"],
+    "http_fingerprint": ["repository not found"],
+    "nxdomain_expected": false,
+    "documentation": "bitbucket.io sites are repo-backed; a deleted repo/ account leaves the domain serving 'Repository not found' and any new repo with the same name claims it.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Ghost",
+    "cname_patterns": ["\\.ghost\\.io$"],
+    "http_fingerprint": ["the thing you were looking for is no longer here", "domain error"],
+    "nxdomain_expected": false,
+    "documentation": "Ghost(Pro) custom domains: cancelled publications leave the domain on Ghost's error page ('The thing you were looking for is no longer here'), and the subdomain can be re-registered on a new Ghost(Pro) trial.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Pantheon",
+    "cname_patterns": ["\\.pantheonsite\\.io$"],
+    "http_fingerprint": ["the gods are wise, but do not know of the site which you seek"],
+    "nxdomain_expected": false,
+    "documentation": "Deleted Pantheon site environments free the pantheonsite.io name; a new site with the same name re-claims custom domains pointed at it (page: 'The gods are wise, but do not know of the site which you seek.').",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Zendesk",
+    "cname_patterns": ["\\.zendesk\\.com$"],
+    "http_fingerprint": ["help center closed"],
+    "nxdomain_expected": false,
+    "documentation": "Deleted/trial-expired Zendesk accounts free the subdomain; the 'Help Center Closed' page marks the dangling state. Modern Zendesk requires account verification before some names — verify claimability.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Tumblr",
+    "cname_patterns": ["\\.tumblr\\.com$"],
+    "http_fingerprint": ["currently exist at this address"],
+    "nxdomain_expected": false,
+    "documentation": "Custom domains on Tumblr map to <name>.tumblr.com; when that blog is gone the page reads '...doesn't currently exist at this address' and the name can be re-registered on a new Tumblr blog.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Surge.sh",
+    "cname_patterns": ["\\.surge\\.sh$"],
+    "http_fingerprint": ["project not found"],
+    "nxdomain_expected": false,
+    "documentation": "Surge.sh static hosting: 'project not found' means the project name is free and anyone can publish a new project under that exact name, claiming the domain.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Statuspage",
+    "cname_patterns": ["\\.statuspage\\.io$"],
+    "http_fingerprint": ["statuspage.io\">redirected"],
+    "nxdomain_expected": false,
+    "documentation": "An unclaimed Statuspage custom domain redirects to the Statuspage marketing site (Rails-style 'You are being ... statuspage.io ... redirected' body). Registering a new Statuspage account with that domain claims it.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Readme.io",
+    "cname_patterns": ["\\.readme\\.io$"],
+    "http_fingerprint": ["project doesnt exist"],
+    "nxdomain_expected": false,
+    "documentation": "Readme.io docs projects: deleted/unregistered project names show 'Project doesnt exist... yet!' and can be created again, claiming custom domains pointed at readme.io.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "UserVoice",
+    "cname_patterns": ["\\.uservoice\\.com$"],
+    "http_fingerprint": ["this uservoice subdomain is currently available"],
+    "nxdomain_expected": false,
+    "documentation": "UserVoice literally serves 'This UserVoice subdomain is currently available!' for unclaimed subdomains — the clearest vendor-admitted takeover state.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "HelpJuice",
+    "cname_patterns": ["\\.helpjuice\\.com$"],
+    "http_fingerprint": ["we could not find what you"],
+    "nxdomain_expected": false,
+    "documentation": "HelpJuice knowledge-base custom domains: unclaimed/deleted accounts serve the HelpJuice 404 ('We could not find what you're looking for'); the subdomain can be re-registered.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "HelpScout Docs",
+    "cname_patterns": ["\\.helpscoutdocs\\.com$"],
+    "http_fingerprint": ["no settings were found for this company"],
+    "nxdomain_expected": false,
+    "documentation": "helpscoutdocs.com doc sites: 'No settings were found for this company' marks the dangling state; registering a Docs site with that subdomain claims it.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Intercom",
+    "cname_patterns": ["\\.intercom\\.help$", "\\.customintercom\\.help$"],
+    "http_fingerprint": ["this page is reserved for artistic dogs"],
+    "nxdomain_expected": false,
+    "documentation": "Intercom custom help centers: unregistered custom domains serve the 'This page is reserved for artistic dogs' 404; adding the domain to a new Intercom env claims it.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "WordPress.com",
+    "cname_patterns": ["\\.wordpress\\.com$"],
+    "http_fingerprint": ["do you want to register"],
+    "nxdomain_expected": false,
+    "documentation": "Unregistered *.wordpress.com subdomains serve a WordPress.com page asking 'Do you want to register ...?' — the name can be claimed via a new WordPress.com blog (edge case: some names are reserved).",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Unbounce",
+    "cname_patterns": ["\\.unbouncepages\\.com$", "\\.unbounce\\.com$"],
+    "http_fingerprint": ["the requested url was not found on this server"],
+    "nxdomain_expected": false,
+    "documentation": "Unbounce landing pages use <name>.unbouncepages.com CNAMEs (bare .unbounce.com is the vendor root — rare); unclaimed pages serve a plain Apache 404 — generic string, corroborate manually before reporting.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "Webflow",
+    "cname_patterns": ["\\.webflow\\.io$"],
+    "http_fingerprint": ["exist or has been moved", "page you are looking for"],
+    "nxdomain_expected": false,
+    "documentation": "webflow.io project subdomains for removed/unpublished projects serve a Webflow 404. Vendor response text has changed over time — treat matches as leads and verify claimability manually.",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Teamwork",
+    "cname_patterns": ["\\.teamwork\\.com$"],
+    "http_fingerprint": ["couldnt find that page"],
+    "nxdomain_expected": false,
+    "documentation": "Teamwork.com project sites: deleted projects leave the subdomain on a 'Oops - We couldn't find that page' 404; historically re-registrable.",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Freshdesk",
+    "cname_patterns": ["\\.freshdesk\\.com$"],
+    "http_fingerprint": ["maybe this page moved, deleted, or is nowhere to be found"],
+    "nxdomain_expected": false,
+    "documentation": "Freshdesk support portals: deleted/unclaimed portals serve a Freshdesk 404; the subdomain can be registered on a new Freshdesk account (support arbitration may apply).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "WUFOO",
+    "cname_patterns": ["\\.wufoo\\.com$"],
+    "http_fingerprint": [],
+    "nxdomain_expected": false,
+    "documentation": "Wufoo form subdomains are historically takeover-prone after account deletion. No stable body fingerprint pinned here — verify manually by attempting to register the subdomain.",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Campaign Monitor",
+    "cname_patterns": ["\\.createsend\\.com$", "\\.campaignmonitor\\.com$"],
+    "http_fingerprint": ["trying to access your account?"],
+    "nxdomain_expected": false,
+    "documentation": "Campaign Monitor (createsend.com) hosted pages: unclaimed accounts serve a page containing 'Trying to access your account?'; re-creating the account claims the subdomain.",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Cargo Collective",
+    "cname_patterns": ["\\.cargocollective\\.com$"],
+    "http_fingerprint": [],
+    "nxdomain_expected": false,
+    "documentation": "Cargo sites: the documented fingerprint is a bare generic '404 Not Found' — too generic to automate safely. Verify manually via the Cargo custom-domain flow.",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Acquia",
+    "cname_patterns": ["\\.acquia-sites\\.com$"],
+    "http_fingerprint": [],
+    "nxdomain_expected": false,
+    "documentation": "Acquia-hosted Drupal sites: deleted environments free acquia-sites.com names. No stable public body fingerprint pinned here — verify manually.",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "ngrok",
+    "cname_patterns": ["\\.ngrok\\.io$"],
+    "http_fingerprint": ["ngrok.io not found", "err_ngrok_3200"],
+    "nxdomain_expected": false,
+    "documentation": "Historically claimable via reserved tunnel names ('Tunnel <name>.ngrok.io not found'). Modern ngrok plans restrict arbitrary claiming — verify before reporting. ERR_NGROK_3200 confirmed as ngrok's current error code for this state (DNSReaper punk-security/dnsReaper, cross-checked against ngrok's own error-code docs).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Fly.io",
+    "cname_patterns": ["\\.fly\\.dev$"],
+    "http_fingerprint": [],
+    "nxdomain_expected": false,
+    "documentation": "Deleted Fly.io apps free fly.dev names; response text has changed across versions. Verify manually by attempting to allocate the app hostname.",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "AWS Elastic Beanstalk",
+    "cname_patterns": ["\\.[a-z0-9-]+\\.elasticbeanstalk\\.com$"],
+    "http_fingerprint": [],
+    "nxdomain_expected": true,
+    "documentation": "Deleted Elastic Beanstalk environments free their <env>.<region>.elasticbeanstalk.com CNAME target; the target itself goes NXDOMAIN (no wildcard). Classic, long-documented takeover class (originally in EdOverflow/can-i-take-over-xyz) — no HTTP fingerprint applies since the target doesn't resolve; verify by attempting to launch an environment with the matching name in the matching region.",
+    "confidence_basis": "well-documented"
+  },
+  {
+    "service": "AgileCRM",
+    "cname_patterns": ["cname\\.agilecrm\\.com$"],
+    "http_fingerprint": ["no landing page found"],
+    "nxdomain_expected": false,
+    "documentation": "AgileCRM landing-page custom domains: unclaimed targets serve 'No landing page found.' Source: DNSReaper (punk-security/dnsReaper, signatures/agilecrm.py).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Aha.io",
+    "cname_patterns": ["\\.aha\\.io$"],
+    "http_fingerprint": ["invalid-portal"],
+    "nxdomain_expected": false,
+    "documentation": "Aha.io product-portal custom domains: unclaimed portals serve an 'invalid-portal' page. Source: DNSReaper (punk-security/dnsReaper, signatures/aha.py).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Airee.ru",
+    "cname_patterns": ["cdn\\.airee\\.ru$"],
+    "http_fingerprint": ["ошибка 402"],
+    "nxdomain_expected": false,
+    "documentation": "Airee.ru (Russian video-hosting CDN) custom domains: unclaimed targets serve a Russian-language 'Error 402. Airee.rf service is not enabled' page. Niche/regional service, keep verification manual. Source: DNSReaper (punk-security/dnsReaper, signatures/airee_ru.py).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Brandpad",
+    "cname_patterns": ["brandpad\\.io$"],
+    "http_fingerprint": ["is not registered as whitelabel or custom domain"],
+    "nxdomain_expected": false,
+    "documentation": "Brandpad.io brand-guideline sites: unclaimed custom domains serve 'is not registered as whitelabel or custom domain.' Source: DNSReaper (punk-security/dnsReaper, signatures/brandpad.py).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Frontify",
+    "cname_patterns": ["cname\\.frontify\\.com$"],
+    "http_fingerprint": ["404 - not found - frontify"],
+    "nxdomain_expected": false,
+    "documentation": "Frontify brand-portal custom domains: unclaimed targets serve a branded '404 - Not Found - Frontify' page (service name in the error text — strong signal). Source: DNSReaper (punk-security/dnsReaper, signatures/frontify.py).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "GetResponse",
+    "cname_patterns": ["\\.gr8\\.com$"],
+    "http_fingerprint": ["is no longer available"],
+    "nxdomain_expected": false,
+    "documentation": "GetResponse landing-page (gr8.com) custom domains: unclaimed targets serve 'is no longer available.' Generic-sounding message — corroborate manually before reporting. Source: DNSReaper (punk-security/dnsReaper, signatures/getresponse.py).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "JetBrains YouTrack",
+    "cname_patterns": ["cname\\.myjetbrains\\.com$"],
+    "http_fingerprint": ["youtrack starting page"],
+    "nxdomain_expected": false,
+    "documentation": "JetBrains-hosted YouTrack custom domains: an unconfigured/deleted instance's CNAME target serves the generic 'YouTrack Starting Page' (i.e. no specific project bound to that hostname yet). Source: DNSReaper (punk-security/dnsReaper, signatures/jetbrains.py).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "LaunchRock",
+    "cname_patterns": ["host\\.launchrock\\.com$"],
+    "http_fingerprint": ["it looks like you may have taken a wrong turn somewhere"],
+    "nxdomain_expected": false,
+    "documentation": "LaunchRock pre-launch landing pages: unclaimed targets serve 'It looks like you may have taken a wrong turn somewhere.' Source: DNSReaper (punk-security/dnsReaper, signatures/launchrock_cname.py).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Mashery",
+    "cname_patterns": ["\\.mashery\\.com$"],
+    "http_fingerprint": ["unrecognized domain"],
+    "nxdomain_expected": false,
+    "documentation": "Mashery (TIBCO) API-portal custom domains: unclaimed targets serve 'Unrecognized domain.' Source: DNSReaper (punk-security/dnsReaper, signatures/mashery.py).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "MySmartJobBoard",
+    "cname_patterns": ["cname\\.mysmartjobboard\\.com$"],
+    "http_fingerprint": ["job board is unavailable"],
+    "nxdomain_expected": false,
+    "documentation": "MySmartJobBoard custom domains: unclaimed job-board targets serve 'Job Board Is Unavailable.' Source: DNSReaper (punk-security/dnsReaper, signatures/mysmartjobboard.py).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Short.io",
+    "cname_patterns": ["cname\\.short\\.io$"],
+    "http_fingerprint": ["this domain is not configured on short.io"],
+    "nxdomain_expected": false,
+    "documentation": "Short.io custom link-shortener domains: unclaimed targets serve 'This domain is not configured on Short.io.' (service name in the error text — strong signal). Source: DNSReaper (punk-security/dnsReaper, signatures/short.py).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Simplebooklet",
+    "cname_patterns": ["cname\\.simplebooklet\\.com$"],
+    "http_fingerprint": ["the link to this simplebooklet may have changed"],
+    "nxdomain_expected": false,
+    "documentation": "Simplebooklet custom domains: unclaimed targets serve 'The link to this Simplebooklet may have changed' (service name in the error text — strong signal). Note: this repo's original entry for Simplebooklet had no fingerprint on record; this supersedes it. Source: DNSReaper (punk-security/dnsReaper, signatures/simplebooklet.py).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "Wishpond",
+    "cname_patterns": ["cname\\.wishpond\\.com$"],
+    "http_fingerprint": ["wishpond.com/404?campaign=true"],
+    "nxdomain_expected": false,
+    "documentation": "Wishpond landing-page custom domains: unclaimed targets redirect/serve a link back to wishpond.com's own 404 page. Source: DNSReaper (punk-security/dnsReaper, signatures/wishpond.py).",
+    "confidence_basis": "community-report"
+  },
+  {
+    "service": "AnnounceKit",
+    "cname_patterns": ["cname\\.announcekit\\.app$"],
+    "http_fingerprint": [],
+    "nxdomain_expected": false,
+    "documentation": "AnnounceKit changelog-widget custom domains: DNSReaper detects the unclaimed state by HTTP status code rather than a stable body string — no fingerprint pinned here, verify manually. Source: DNSReaper (punk-security/dnsReaper, signatures/announcekit.py).",
+    "confidence_basis": "community-report"
+  }
+]

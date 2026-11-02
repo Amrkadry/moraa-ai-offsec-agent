@@ -1,0 +1,52 @@
+id: moraa-exposed-source-map
+
+info:
+  name: Exposed JavaScript Source Map (genuine v3 map, not an SPA 200)
+  author: moraa-ai-offsec-agent
+  severity: low
+  description: |
+    Two-step template: extracts absolute-path script bundles from the page, then requests each
+    with a .map suffix and matches only GENUINE source maps - JSON carrying the three fields
+    the v3 spec requires ("version", "sources", "mappings"). A wildcard catch-all serving HTML
+    200 for any path does NOT match (content match, not status match).
+    Impact: a real .js.map hands over original source - internal endpoints, auth logic,
+    comments and sometimes secrets (CWE-540). js-analysis.md lesson: one estate leaked 163-253
+    internal admin endpoints this way. Escalate severity when the map content yields a working
+    secret.
+    LIMITATION (stated honestly): only bundles referenced with an absolute path (src="/...js")
+    are probed; relative-path bundles need the manual js_recon.py pass.
+  reference:
+    - https://developer.mozilla.org/en-US/docs/Tools/Debugger/How_to/Use_a_source_map
+  metadata:
+    moraa-doc: nuclei-templates.md
+    moraa-gate: map content itself is low (CWE-540); escalate only on a working secret
+  tags: exposure,sourcemap,moraa,cwe540
+
+http:
+  - raw:
+      - |
+        GET HTTP/1.1
+        Host: {{Hostname}}
+
+    extractors:
+      - type: regex
+        name: js_path
+        part: body
+        internal: true
+        group: 1
+        regex:
+          - '(?i)(?:src|href)\s*=\s*["''](/[^"'']+\.js)["'']'
+
+  - raw:
+      - |
+        GET {{js_path}}.map HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: word
+        part: body
+        condition: and
+        words:
+          - '"version"'
+          - '"sources"'
+          - '"mappings"'

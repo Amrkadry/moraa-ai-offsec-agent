@@ -1,0 +1,31 @@
+id: moraa-sveltekit-data-json
+
+info:
+  name: SvelteKit __data.json Route Data Exposure
+  author: moraa-ai-offsec-agent
+  severity: medium
+  description: |
+    Requests /__data.json and matches the SvelteKit route-data envelope ({"type":"data",
+    "data":[...]}). __data.json exposes the route's load() output - including SERVER load()
+    results the UI never renders: framework-misconfig.md records a CONFIRMED HIGH where an
+    unauthenticated __data.json leaked backend authHeader, config and cross-tenant PII.
+    Matching is on body content ("type":"data" + "data":[), so a wildcard-200 HTML catch-all
+    does not trigger. Root path only: sweep enumerated routes manually per framework-misconfig
+    (e.g. /account/__data.json, /api-keys/__data.json).
+  reference:
+    - https://kit.svelte.dev/docs/page-options#prerender
+  metadata:
+    moraa-doc: nuclei-templates.md
+    moraa-gate: hit = read the leaked objects; finding severity follows what load() exposed
+  tags: exposure,sveltekit,moraa
+
+http:
+  - raw:
+      - |
+        GET /__data.json HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: dsl
+        dsl:
+          - "status_code == 200 && contains(body, '\"type\":\"data\"') && contains(body, '\"data\":[')"

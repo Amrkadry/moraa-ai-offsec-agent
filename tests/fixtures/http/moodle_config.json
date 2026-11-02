@@ -1,0 +1,16 @@
+[
+  {
+    "error": "",
+    "data": {
+      "sitename": "Fixture Academy",
+      "registerauth": "email",
+      "guestlogin": 1,
+      "enablewebservices": 1,
+      "identityproviders": [
+        {"name": "Fixture SSO", "id": 1, "idptype": 2}
+      ],
+      "forgottenpasswordurl": "",
+      "maintenancemessage": ""
+    }
+  }
+]

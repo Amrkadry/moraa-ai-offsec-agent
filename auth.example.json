@@ -1,0 +1,21 @@
+{
+  "_comment": "Copy to engagements/<target>/auth.json and fill in. RedHunt reads this on engage. Secrets stay local; never copied into findings/ or report/.",
+  "scope": ["*.target.com", "10.10.10.0/24"],
+  "out_of_scope": ["blog.target.com", "*.thirdparty.com"],
+  "cookie": "session=PASTE_HERE; other=VALUE",
+  "bearer": "eyJhbGciOi...",
+  "api_key": "ak_live_...",
+  "headers": ["X-Org-Id: 42", "X-CSRF-Token: ..."],
+  "creds": [
+    { "user": "attacker_low", "pass": "Password1!", "role": "attacker", "notes": "low-priv test account A" },
+    { "user": "victim_user",  "pass": "Password2!", "role": "victim",   "notes": "second account B for IDOR/access-control" }
+  ],
+  "internal": {
+    "domain": "corp.local",
+    "dc_ip": "10.10.10.10",
+    "creds": [{ "user": "svc_user", "pass": "...", "type": "password" }],
+    "hashes": [{ "user": "admin", "nt": "aad3b435b51404ee..." }]
+  },
+  "docs": "docs/",
+  "authorization": "Engagement authorized by <name/ref>. Window: <start>–<end>."
+}

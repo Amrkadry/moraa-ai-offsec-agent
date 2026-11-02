@@ -1,0 +1,54 @@
+id: moraa-healthz-build-metadata
+
+info:
+  name: Unauthenticated Health Endpoint Leaking Build/Deploy Metadata
+  author: moraa-ai-offsec-agent
+  severity: info
+  description: |
+    Probes the common health-check paths and flags ONLY responses that 200 with build/deploy
+    metadata fields in the body (commit, gitHash, revision, buildTime, build) - a plain
+    {"status":"ok"} health endpoint does NOT match, because the finding is the metadata leak,
+    not the health check's existence. Content-based matcher: wildcard catch-alls and edge
+    block pages never carry these fields.
+    Impact: build SHAs link deployments to specific source commits (useful for n-day matching
+    via rce-scenarios.md §13), internal hostnames/regions and team naming conventions feed
+    recon. Info by itself; feeds fingerprinting and social engineering.
+  reference:
+    - https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/02-Configuration_and_Deployment_Management_Testing
+  metadata:
+    moraa-doc: nuclei-templates.md
+    moraa-gate: info-severity; value = version pinning + recon context, report as info
+  tags: exposure,info,moraa,metadata
+
+http:
+  - raw:
+      - |
+        GET /healthz HTTP/1.1
+        Host: {{Hostname}}
+      - |
+        GET /health HTTP/1.1
+        Host: {{Hostname}}
+      - |
+        GET /api/health HTTP/1.1
+        Host: {{Hostname}}
+      - |
+        GET /api/v1/health HTTP/1.1
+        Host: {{Hostname}}
+      - |
+        GET /status HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        part: body
+        condition: or
+        words:
+          - '"commit"'
+          - '"gitHash"'
+          - '"revision"'
+          - '"buildTime"'
+          - '"build"'
