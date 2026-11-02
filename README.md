@@ -9,7 +9,7 @@ from a per-target engagement folder and gated by an evidence-first validation di
 
 It is **not a scanner and not an exploit kit.** It ships no weaponised exploits, holds no target
 data, and automates nothing that touches a host without your explicit authorization. What it ships
-is *judgement*: 88 methodology documents that encode which question to ask next, which signal is a
+is *judgement*: 91 methodology documents that encode which question to ask next, which signal is a
 lie, and what separates a real finding from a `200 OK`.
 
 > ### Authorized use only
@@ -78,7 +78,7 @@ offensive-security task) or by calling an agent directly: `@bughunter`, `@recon`
 
 | | Count | What |
 |---|---|---|
-| **Methodology docs** | 88 root + 10 nested | One doc per vulnerability class or engagement phase |
+| **Methodology docs** | 91 root + 10 nested | One doc per vulnerability class or engagement phase |
 | **Automation scripts** | 24 (16 Python, 8 shell) | Stdlib-only recon, detection and triage pipeline |
 | **Agents** | 6 | Specialised subagent definitions |
 | **Nuclei templates** | 7 | High-signal checks public template sets miss |

@@ -72,6 +72,7 @@
 | **SAML SSO** | XML signature wrapping (XSW), signature stripping, self-signed cert swap, NameID comment injection, federation confusion | **`auth-oauth.md`** § SAML SSO attacks |
 | **Rate-limit bypass** | IP-spoof headers, param jitter, race, resend-resets-counter, endpoint/version switch | **`rate-limit-bypass.md`** |
 | **Network egress filter in the way** | target unreachable from your vantage point, or the client claims "we block X" — characterise the block layer (DNS/IP/TLS-SNI/Host/explicit-proxy) before tunnelling; blocklist-edge siblings (API/CDN/`m.`/IPv6/port-80) usually pass; also the C2/exfil channel-selection pivot | **`egress-filter-bypass.md`** |
+| **Identity handle reuse** | does the IdP release a handle on rename/delete; does the downstream app key the local account on handle/email rather than the immutable `sub` (rename your own handle and re-login — new empty account = vulnerable shape); two-account canary proof | **`identity-handle-reuse.md`** |
 | **User enumeration** | body/status/redirect/timing-distribution/rate-limit oracles across login/reset/signup/OAuth-linking/SSO-discovery; controls that prove the oracle is real; chained to lockout/reset flaws = the real finding | **`user-enumeration.md`** |
 | **ReDoS** | catastrophic backtracking regex, blind timing probe, header/input parsers | **`redos.md`** |
 | **JWT** | `alg:none`, RS256→HS256 confusion, weak secret, `kid` injection, `jku/jwk`, exp/claim tamper, per-service inconsistency, logout non-revoke | **`jwt.md`** (+offensive-jwt) |

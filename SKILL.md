@@ -113,6 +113,7 @@ once; pull the doc you need.
 | **JWT** (alg:none, RS256→HS256 confusion, kid/jku/jwk, exp/claim tamper, per-service inconsistency, logout non-revoke) | `jwt.md` |
 | **Session management** (cookie/session class) — fixation & rotation on privilege change, session puzzling, logout non-invalidation, concurrency, timeouts, cookie scoping/`__Host-`, entropy, and the high-impact test: **sessions surviving password/email/2FA change** | `session-management.md` |
 | **Business logic / money bugs** (price/qty/currency manip, coupon stack/reuse, workflow skip, race) | `business-logic.md` |
+| **Need the vendor's server/device-side code and cannot reach it** (401 device plane, hardware you do not own, no source) — pull two adjacent builds from the vendor's anonymous package index and diff them offline: symbol diff with `go tool nm`/`objdump` (no binutils), `Depends:` to find the real component, and the omitted-option call-site tell | `binary-diffing.md` |
 | **Supply-chain / artifact integrity** (firmware transport+sig, redirect downgrade, package repos, dependency confusion, CI) | `supply-chain.md` |
 | **XSS** (context detection, filter/CSP bypass, blind XSS, chain into CORS-trusted origin) | `xss.md` |
 | **CSRF** (SameSite interplay, token-validation flaws, auto-submit PoC, CORS-leaks-token→ATO) | `csrf.md` |
@@ -127,6 +128,7 @@ once; pull the doc you need.
 | **SAML SSO attacks** (XML signature wrapping, sig-stripping, federation confusion) | `auth-oauth.md` § SAML SSO attacks |
 | **Rate-limit bypass** (unlocks OTP/login/coupon brute at scale) | `rate-limit-bypass.md` |
 | **Egress filter / DPI bypass** (characterise the block layer — DNS/IP/SNI/Host/proxy — then Tier 1 blocklist-edge wins, Tier 2 ClientHello fragmentation/ECH, Tier 3 TLS tunnels; also the C2/exfil channel-selection pivot) | `egress-filter-bypass.md` |
+| **Identity handle reuse → ATO** (IdP releases a username/handle on rename or delete; a downstream SSO app keyed the local account on that mutable string instead of the immutable `sub`, so whoever claims the handle next lands in the previous owner's account) — handle-release test, which identifier the app keys on, two-account canary proof | `identity-handle-reuse.md` |
 | **User enumeration** (login/reset/signup/OAuth-linking/SSO-discovery oracles) — body/status/redirect/timing/rate-limit differences, distribution-based timing proof, controls that separate real oracles from noise, and the chain to weak lockout/reset flaws that makes it a real finding | `user-enumeration.md` |
 | **ReDoS** (catastrophic backtracking, blind timing confirm) | `redos.md` |
 | **Clickjacking / postMessage** (frame overlay PoC; missing `event.origin` check) | `clickjacking.md`, `postmessage.md` |
@@ -190,6 +192,7 @@ once; pull the doc you need.
 | Setting up my Kali/WSL toolbox | `loadout.md` |
 | **About to trust a signal** (fuzz hits, S3 403s, OOB negatives, CT names, saved `-o` output, **an OOB hit you are about to call SSRF**) — six real false positives, one cause: uncontrolled oracles; incl. unpollable pasted Collaborator payloads and DNS 0x20 case randomisation | `controls-and-oracles.md` |
 | **Wondering whether to run another sweep** — telling "not looked hard enough" from "structurally blocked": how to state a ceiling (missing primitive / what unblocks / what it caps), when to stop and escalate, and the inverse trap of claiming a ceiling without a class-by-class negative | `engagement-ceiling.md` |
+| **About to record a clean negative / a PoC produced nothing** — no negative without a positive control, a PoC that needs a fixture creates it, artifact-not-stdout proofs, the three exit states (fired-clean / fired-found / **did not fire**), readiness asserts instead of `sleep` | `poc-discipline.md` |
 | About to write up a finding | `validate.md` (gate) then `reporting.md` |
 | **Wrapping up an engagement (DEFAULT final step)** — publish the Notion page tree: root -> Summary -> Coverage Matrix -> one subpage per subdomain -> one subpage per finding -> PoC subpage. Generate with `scripts/notion_export.py`, never hand-build | `reporting.md` § "Notion documentation" |
 

@@ -83,6 +83,10 @@ WEBHUNT_ABSENT_OK = {
     "engagement-ceiling.md", "cloud-offensive.md",
     # niche non-web classes with dedicated router rows
     "agentic-browser-hijack.md", "mcp-security.md", "web3-audit.md", "meme-coin-audit.md",
+    # offline binary/firmware analysis: no live web surface, so no web class-table row
+    "binary-diffing.md",
+    # harness/verdict discipline: applies to every class, belongs beside validate.md not in the table
+    "poc-discipline.md",
 }
 
 # Gate-substance markers: if a technique doc contains any of these (or an impact-gate heading),
